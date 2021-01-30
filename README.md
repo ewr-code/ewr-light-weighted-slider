@@ -1,6 +1,7 @@
 # ewr-light-weighted-slider
 This is a light-weighted slider for Wordpress. 
-=== Ewri Light-Weighted Slider Plugin ===
+
+=== Ewr Light-Weighted Slider Plugin ===
 Contributors: Evrim Oguz
 Donate link:https://evrimoguz.com 
 Tags: Slider, light-weighted slider, light slider
@@ -18,13 +19,15 @@ Ewr Light-Weighted Slider Plugin is the simplest slider which is very light-weig
 1. Unpack the `download-package`.
 2. Upload the file to the `/wp-content/plugins/` directory.
 3. Activate the plugin through the `Plugins` menu in WordPress.
-4. Go to Settings > Ewr Light-Weighted Slider
-5. Type your image names in upload  
+4. Go to Ewr Slider on Admin page
+5. To add a new image type your image file name and click insert
+6. To change animage click update on the line and change the file name.
+7. To delete an image click delete on teh line 
  
 == Frequently Asked Questions ==
  
-= How to add FAQ question =
-* just add your FAQ questions here
+* How to add images?
+You can just copy and paste your filename with location, you can also use URL.
  
 == Screenshots ==
 1. This is a text label for your first screenshot

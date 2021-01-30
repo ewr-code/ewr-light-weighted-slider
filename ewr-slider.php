@@ -23,8 +23,8 @@
  */
 
  #create table
-register_activation_hook( __FILE__, 'crudOperationsTable');
-function crudOperationsTable() {
+register_activation_hook( __FILE__, 'ewrsliderTable');
+function ewrsliderTable() {
   global $wpdb;
   $charset_collate = $wpdb->get_charset_collate();
   $table_name = $wpdb->prefix . 'ewr_slider';
@@ -42,11 +42,11 @@ function crudOperationsTable() {
 #create page
 add_action('admin_menu', 'addAdminPageContent');
 function addAdminPageContent() {
-  add_menu_page('Ewr Slider', 'Ewr Slider', 'manage_options' ,__FILE__, 'crudAdminPage', 'dashicons-wordpress');
+  add_menu_page('Ewr Slider', 'Ewr Slider', 'manage_options' ,__FILE__, 'ewrsliderAdminPage', 'dashicons-wordpress');
 }
 
-
-function crudAdminPage() {
+#create database operations
+function ewrsliderAdminPage() {
   global $wpdb;
   $table_name = $wpdb->prefix . 'ewr_slider';
   if (isset($_POST['newsubmit'])) {
@@ -130,7 +130,7 @@ function crudAdminPage() {
   </div>
   <?php
 }
-/*New slider for website*/
+/*start ewr-slider*/
 include('custom-shortcodes.php');
 function ewr_slider() {
   global $wpdb;
@@ -260,8 +260,7 @@ function showSlides(n) {
   slides[slideIndex-1].style.display = "block";
   dots[slideIndex-1].className += " active";
 }
-
-        
+       
     </script>
     <script>
         var indexValue = 0;
@@ -286,9 +285,6 @@ $result = $wpdb->get_results("SELECT * FROM $table_name");
           }
         ?>
   
-
-
-
   <!-- Next and previous buttons -->
   <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
   <a class="next" onclick="plusSlides(1)">&#10095;</a>
