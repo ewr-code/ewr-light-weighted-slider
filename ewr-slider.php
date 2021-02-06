@@ -27,10 +27,11 @@ register_activation_hook( __FILE__, 'ewrsliderTable');
 function ewrsliderTable() {
   global $wpdb;
   $charset_collate = $wpdb->get_charset_collate();
-  $table_name = $wpdb->prefix . 'ewr_slider';
+  $table_name = $wpdb->prefix . 'ewr_sliderr';
   $sql = "CREATE TABLE `$table_name` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(220) DEFAULT NULL,
+  `img_link` varchar(220) DEFAULT NULL,
   PRIMARY KEY(user_id)
   ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
   ";
@@ -39,6 +40,7 @@ function ewrsliderTable() {
     dbDelta($sql);
   }
 }
+
 #create page
 add_action('admin_menu', 'addAdminPageContent');
 function addAdminPageContent() {
@@ -48,16 +50,18 @@ function addAdminPageContent() {
 #create database operations
 function ewrsliderAdminPage() {
   global $wpdb;
-  $table_name = $wpdb->prefix . 'ewr_slider';
+  $table_name = $wpdb->prefix . 'ewr_sliderr';
   if (isset($_POST['newsubmit'])) {
     $name = $_POST['newname'];
-    $wpdb->query("INSERT INTO $table_name(name) VALUES('$name')");
-    echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
+    $img_link= $_POST['newimg_link'];
+    $wpdb->query("INSERT INTO $table_name(name, img_link) VALUES('$name', '$img_link')");
+    echo "<script>alert($name, $img_link);location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
   }
   if (isset($_POST['uptsubmit'])) {
     $id = $_POST['uptid'];
     $name = $_POST['uptname'];
-    $wpdb->query("UPDATE $table_name SET name='$name' WHERE user_id='$id'");
+    $img_link= $_POST['uptimg_link'];
+    $wpdb->query("UPDATE $table_name SET name='$name', img_link='$img_link' WHERE user_id='$id'");
     echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
   }
   if (isset($_GET['del'])) {
@@ -71,14 +75,16 @@ function ewrsliderAdminPage() {
     <table class="wp-list-table widefat striped">
       <thead>
         <tr>
-          <th width="75%">File Name</th>
-          <th width="25%">Actions</th>
+          <th width="40%">File Name</th>
+          <th width="40%">Image Link</th>
+          <th width="20%">Actions</th>
         </tr>
       </thead>
       <tbody>
         <form action="" method="post">
           <tr>
-            <td><input type="text" id="newname" name="newname" size='100'></td>
+            <td><input type="text" id="newname" name="newname" size='50'></td>
+            <td><input type="text" id="newimg_link" name="newimg_link" size='50'></td>
             <td><button id="newsubmit" name="newsubmit" type="submit">INSERT</button></td>
           </tr>
         </form>
@@ -89,8 +95,9 @@ function ewrsliderAdminPage() {
           foreach ($result as $print) {
             echo "
               <tr>
-                <td width='75%'>$print->name</td>
-                <td width='25%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&upt=$print->user_id'><button type='button'>UPDATE</button></a> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&del=$print->user_id'><button type='button'>DELETE</button></a></td>
+                <td width='40%'>$print->name</td>
+                <td width='40%'>$print->img_link</td>
+                <td width='20%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&upt=$print->user_id'><button type='button'>UPDATE</button></a> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&del=$print->user_id'><button type='button'>DELETE</button></a></td>
               </tr>
             ";
           }
@@ -105,22 +112,25 @@ function ewrsliderAdminPage() {
         $result = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id='$upt_id'");
         foreach($result as $print) {
           $name = $print->name;
+          $img_link = $print->img_link;
         }
         echo "
         <table class='wp-list-table widefat striped'>
           <thead>
             <tr>
-              <th width='25%'>ID</th>
-              <th width='50%'>Name</th>
-              <th width='25%'>Actions</th>
+              <th width='10%'>ID</th>
+              <th width='35%'>Name</th>
+              <th width='35%'>Image Link</th>
+              <th width='20%'>Actions</th>
             </tr>
           </thead>
           <tbody>
             <form action='' method='post'>
               <tr>
-                <td width='25%'>$print->user_id <input type='hidden' id='uptid' name='uptid' value='$print->user_id'></td>
-                <td width='50%'><input type='text' id='uptname' name='uptname' size='100' value='$print->name'></td>
-                <td width='25%'><button id='uptsubmit' name='uptsubmit' type='submit'>UPDATE</button> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php'><button type='button'>CANCEL</button></a></td>
+                <td width='10%'>$print->user_id <input type='hidden' id='uptid' name='uptid' value='$print->user_id'></td>
+                <td width='35%'><input type='text' id='uptname' name='uptname' size='50' value='$print->name'></td>
+                <td width='35%'><input type='text' id='uptimg_link' name='uptimg_link' size='50' value='$print->img_link'></td>
+                <td width='20%'><button id='uptsubmit' name='uptsubmit' type='submit'>UPDATE</button> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php'><button type='button'>CANCEL</button></a></td>
               </tr>
             </form>
           </tbody>
@@ -134,9 +144,9 @@ function ewrsliderAdminPage() {
 include('custom-shortcodes.php');
 function ewr_slider() {
   global $wpdb;
-  $table_name = $wpdb->prefix . 'ewr_slider';
+  $table_name = $wpdb->prefix . 'ewr_sliderr';
   ?>
-   <style>
+<style>
 
 /* Slideshow container */
 .slideshow-container {
@@ -230,47 +240,47 @@ function ewr_slider() {
   from {opacity: .4}
   to {opacity: 1}
 }
-    </style>
-    <script type="text/javascript">
-        var slideIndex = 1;
+
+</style>
+<script async>
+  var slideIndex = 1;
 showSlides(slideIndex);
 
 // Next/previous controls
 function plusSlides(n) {
-  showSlides(slideIndex += n);
+showSlides(slideIndex += n);
 }
 
 // Thumbnail image controls
 function currentSlide(n) {
-  showSlides(slideIndex = n);
+showSlides(slideIndex = n);
 }
 
 function showSlides(n) {
-  var i;
-  var slides = document.getElementsByClassName("mySlides");
-  var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-      dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
+var i;
+var slides = document.getElementsByClassName("mySlides");
+var dots = document.getElementsByClassName("dot");
+if (n > slides.length) {slideIndex = 1}
+if (n < 1) {slideIndex = slides.length}
+for (i = 0; i < slides.length; i++) {
+slides[i].style.display = "none";
 }
-       
-    </script>
-    <script>
-        var indexValue = 0;
-        function slideShow(){
-          setTimeout(slideShow, 5000);
-          plusSlides(1);
-        }
-        slideShow();
-		currentSlide(1);
-      </script>
+for (i = 0; i < dots.length; i++) {
+dots[i].className = dots[i].className.replace(" active", "");
+}
+slides[slideIndex-1].style.display = "block";
+dots[slideIndex-1].className += " active";
+}
+
+var indexValue = 0;
+function slideShow(){
+  setTimeout(slideShow, 5000);
+  plusSlides(1);
+}
+slideShow();
+currentSlide(1);
+
+</script>
     <!-- Slideshow container -->
 <div class="slideshow-container">
 
@@ -280,7 +290,7 @@ $result = $wpdb->get_results("SELECT * FROM $table_name");
           foreach ($result as $print) {
             echo "
             <div class='mySlides fade'>
-            <img src='$print->name' style='width:100%'></div>
+            <a href='$print->img_link'><img src='$print->name' style='width:100%'></a></div>
             ";
           }
         ?>
