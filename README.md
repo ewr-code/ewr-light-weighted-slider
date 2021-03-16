@@ -1,8 +1,9 @@
 # ewr-light-weighted-slider
 This is a light-weighted slider for Wordpress. 
+
 === Ewr Light-Weighted Slider Plugin ===
 Contributors: Evrim Oguz
-Donate link:https://www.buymeacoff.ee/evrimoguz
+Donate link:https://evrimoguz.com 
 Tags: Slider, light-weighted slider, light slider
 Requires at least: 4.5
 Tested up to: 5.6
@@ -22,8 +23,7 @@ Ewr Light-Weighted Slider Plugin is the simplest slider which is very light-weig
 4. Go to Ewr Slider on Admin page
 5. To add a new image type your image file name and click insert
 6. To change animage click update on the line and change the file name.
-7. To delete an image click delete on teh line
-8. If you want to change the image order you can use the up/down arrows. 
+7. To delete an image click delete on teh line 
  
 == Frequently Asked Questions ==
  
@@ -37,13 +37,13 @@ Just copy and paste your links.
 You can use up/down arrow for ordering.
 
 * What is the recommended image dimensions?
-1200x600 is recommended. You can use another dimensions but don't forget all of the images have to be the same dimensions for best results. 
+1200x600 is recommended.
 
  
 == Changelog ==
 
 = 1.1.1 =
-* image order bug fixed.
+* image order bug fixed(while deleting image).
  
 = 1.1.0 =
 * Placeholder for images added.
@@ -52,6 +52,3 @@ You can use up/down arrow for ordering.
 
 = 1.0.0 =
 *intial release
- 
-= 1.0.0 =
-* Initial release

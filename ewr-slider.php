@@ -6,14 +6,14 @@
  * @package Ewr Light-Weighted Slider 
  * @author Evrim Oguz
  * @license GPL-2.0+
- * @link https://evrimoguz.com
+ * @link https://evrimoguz.com/category/wordpress/ewr-light-weighted-slider-plugin/
  * @copyright 2021 evrimoguz.com All rights reserved.
  *
  *            @wordpress-plugin
  *            Plugin Name: Ewr Light-Weighted Slider Plugin
- *            Plugin URI: https://evrimoguz.com
+ *            Plugin URI: https://evrimoguz.com/category/wordpress/ewr-light-weighted-slider-plugin/
  *            Description: Ewr Light-Weighted Slider Plugin is the simplest slider which is very light-weighted. There is no any option except giving file names. Cos the main aim is being light-weighted.
- *            Version: 1.0
+ *            Version: 1.1.1
  *            Author: Evrim Oguz
  *            Author URI: https://evrimoguz.com
  *            Text Domain: ewr-light-weighted-slider
@@ -54,8 +54,9 @@ function ewrsliderAdminPage() {
   if (isset($_POST['newsubmit'])) {
     $name = $_POST['newname'];
     $img_link= $_POST['newimg_link'];
-    $wpdb->query("INSERT INTO $table_name(name, img_link) VALUES('$name', '$img_link')");
-    echo "<script>alert($name, $img_link);location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
+    $img_order= $_POST['newimg_order'];
+    $wpdb->query("INSERT INTO $table_name(name, img_link, img_order) VALUES('$name', '$img_link', $img_order)");
+    echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
   }
   if (isset($_POST['uptsubmit'])) {
     $id = $_POST['uptid'];
@@ -66,38 +67,80 @@ function ewrsliderAdminPage() {
   }
   if (isset($_GET['del'])) {
     $del_id = $_GET['del'];
+    $results = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id='$del_id'");
+    foreach($results as $print){
+      $del_order= $print->img_order; }
+      $results = $wpdb->get_results("SELECT * FROM $table_name WHERE img_order > $del_order");
+    foreach($results as $print){
+      $new_order= $print->img_order -1;
+      $wpdb->query("UPDATE $table_name SET img_order=$new_order WHERE user_id = '$print->user_id'");
+    }      
     $wpdb->query("DELETE FROM $table_name WHERE user_id='$del_id'");
     echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
   }
+  if (isset($_GET['up'])) {
+    $up_id = $_GET['up'];
+    $ord_id = $_GET['ord_id'];
+    $previous= $up_id - 1;
+    $wpdb->query("UPDATE $table_name SET img_order=$up_id WHERE img_order = '$previous'");   
+    $wpdb->query("UPDATE $table_name SET img_order=$previous WHERE user_id = '$ord_id'");
+    echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
+  }
+  if (isset($_GET['down'])) {
+    $down_id = $_GET['down'];
+    $ord_id = $_GET['ord_id'];
+    $next= $down_id + 1;
+    $wpdb->query("UPDATE $table_name SET img_order=$down_id WHERE img_order = '$next'");   
+    $wpdb->query("UPDATE $table_name SET img_order=$next WHERE user_id = '$ord_id'");
+    echo "<script>location.replace('admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php');</script>";
+  }
   ?>
+  <style>
+  .up_arrow {
+    font-family: "dashicons";
+    content: "\f142";
+  }
+</style>
   <div class="wrap">
     <h2>Ewr Light-Weighted Slider</h2>
     <table class="wp-list-table widefat striped">
       <thead>
         <tr>
-          <th width="40%">File Name</th>
-          <th width="40%">Image Link</th>
+          <th width="35%">File Name</th>
+          <th width="35%">Image Link</th>
+          <th width="10%">Image Order</th>
           <th width="20%">Actions</th>
         </tr>
       </thead>
       <tbody>
+      <?php
+          $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY img_order ASC");?>
         <form action="" method="post">
           <tr>
             <td><input type="text" id="newname" name="newname" size='50'></td>
             <td><input type="text" id="newimg_link" name="newimg_link" size='50'></td>
+            <td><input type="text" id="newimg_order" name="newimg_order" size='2' value=<?php echo count($result) + 1;?> readonly></td>
             <td><button id="newsubmit" name="newsubmit" type="submit">INSERT</button></td>
           </tr>
         </form>
         <?php
-          $result = $wpdb->get_results("SELECT * FROM $table_name");
           echo 'Total images:';
           echo count($result);
           foreach ($result as $print) {
             echo "
               <tr>
-                <td width='40%'>$print->name</td>
-                <td width='40%'>$print->img_link</td>
-                <td width='20%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&upt=$print->user_id'><button type='button'>UPDATE</button></a> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&del=$print->user_id'><button type='button'>DELETE</button></a></td>
+                <td width='35%'>$print->name</td>
+                <td width='35%'>$print->img_link</td>";
+                if ($print->img_order != 1 && $print->img_order != count($result)){
+                  echo "<td width='10%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&up=$print->img_order&ord_id=$print->user_id' title='Move up'><span class='dashicons dashicons-arrow-up'></span></a>$print->img_order<a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&down=$print->img_order&ord_id=$print->user_id' title='Move down'><span class='dashicons dashicons-arrow-down'></span></a></td>";
+                }
+                elseif ($print->img_order == 1) {
+                  echo "<td width='10%'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$print->img_order<a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&down=$print->img_order&ord_id=$print->user_id' title='Move down'><span class='dashicons dashicons-arrow-down'></span></a></td>";
+                }
+                elseif ($print->img_order == count($result)) {
+                  echo "<td width='10%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&up=$print->img_order&ord_id=$print->user_id' title='Move up'><span class='dashicons dashicons-arrow-up'></span></a>$print->img_order</td>";
+                }
+                echo "<td width='20%'><a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&upt=$print->user_id'><button type='button'>UPDATE</button></a> <a href='admin.php?page=ewr-light-weighted-slider%2Fewr-slider.php&del=$print->user_id'><button type='button'>DELETE</button></a></td>
               </tr>
             ";
           }
@@ -138,22 +181,24 @@ function ewrsliderAdminPage() {
       }
     ?>
   </div>
-  <?php
+<?php
 }
 /*start ewr-slider*/
-include('custom-shortcodes.php');
 function ewr_slider() {
   global $wpdb;
   $table_name = $wpdb->prefix . 'ewr_sliderr';
-  ?>
+?>
 <style>
 
 /* Slideshow container */
 .slideshow-container {
-  max-width: 1000px;
+  max-width: 1200px;
   position: relative;
   margin: auto;
 }
+
+/* Placeholder*/
+  background-image: url("placeholder.gif");
 
 /* Hide the images by default */
 .mySlides {
@@ -226,9 +271,9 @@ function ewr_slider() {
 /* Fading animation */
 .fade {
   -webkit-animation-name: fade;
-  -webkit-animation-duration: 1.5s;
+  -webkit-animation-duration: 5s;
   animation-name: fade;
-  animation-duration: 1.5s;
+  animation-duration: 5s;
 }
 
 @-webkit-keyframes fade {
@@ -285,8 +330,10 @@ currentSlide(1);
 <div class="slideshow-container">
 
   <!-- Full-width images-->
+  <div class="placeholder">
 <?php
-$result = $wpdb->get_results("SELECT * FROM $table_name");
+
+$result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY img_order ASC");
           foreach ($result as $print) {
             echo "
             <div class='mySlides fade'>
@@ -294,28 +341,29 @@ $result = $wpdb->get_results("SELECT * FROM $table_name");
             ";
           }
         ?>
-  
+  </div>
   <!-- Next and previous buttons -->
   <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
   <a class="next" onclick="plusSlides(1)">&#10095;</a>
-</div>
-<br>
-
-<!-- The dots/circles -->
-<div style="text-align:center">
-<?php
-$result = $wpdb->get_results("SELECT * FROM $table_name");
-          $i =0;
-          foreach ($result as $print) {
-            $i += 1;
-            echo "
-            <span class='dot' onclick='currentSlide($i)'></span>
-            ";
-          }
-        ?>
- 
+  <!-- The dots/circles -->
+  <div style="text-align:center">
+  <?php
+  $result = $wpdb->get_results("SELECT * FROM $table_name ORDER BY img_order ASC");
+            $i =0;
+            foreach ($result as $print) {
+              $i += 1;
+              echo "
+              <span class='dot' onclick='currentSlide($i)'></span>
+              ";
+            }
+          ?>
+  
+  </div>
 </div>
 <?php
+            echo '<script type="text/javascript">
+            currentSlide(1);
+       </script>'; 
 }
 add_shortcode('ewrslider', 'ewr_slider');
 ?>
